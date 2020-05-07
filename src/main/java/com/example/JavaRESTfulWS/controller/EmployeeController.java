@@ -2,6 +2,7 @@ package com.example.JavaRESTfulWS.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,46 +12,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.JavaRESTfulWS.model.Employee;
-import com.example.JavaRESTfulWS.repository.EmployeeRepository;
+import com.example.JavaRESTfulWS.service.EmployeeService;
 
 @RestController
 public class EmployeeController {
 
-	private final EmployeeRepository repository;
+	@Autowired
+	private EmployeeService service;
 
-	public EmployeeController(EmployeeRepository repository) {
-		this.repository = repository;
-	}
-
-	// read
 	@GetMapping("/employees")
 	public List<Employee> all() {
-		return repository.findAll();
+		return service.all();
 	}
 
-	// create
 	@PostMapping("/employees")
 	public Employee newEmployee(@RequestBody Employee newEmployee) {
-		return repository.save(newEmployee);
+		return service.newEmployee(newEmployee);
 	}
 
-	// delete
 	@DeleteMapping("/employees/{id}")
 	public void deleteEmployee(@PathVariable Long id) {
-		repository.deleteById(id);
+		service.deleteEmployee(id);
 	}
 
-	// update
 	@PutMapping("/employees/{id}")
 	public Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
 
-		return repository.findById(id).map(employee -> {
-			employee.setName(newEmployee.getName());
-			employee.setRole(newEmployee.getRole());
-			return repository.save(employee);
-		}).orElseGet(() -> {
-			newEmployee.setId(id);
-			return repository.save(newEmployee);
-		});
+		return service.replaceEmployee(newEmployee, id);
 	}
 }
